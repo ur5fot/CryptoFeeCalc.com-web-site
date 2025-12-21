@@ -55,6 +55,16 @@ const copyAddress = async () => {
         <p class="lead">
           {{ leadText }}
         </p>
+        <div class="social">
+          <a
+            class="x-link"
+            href="https://x.com/cryptofeecalc"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Follow updates on X
+          </a>
+        </div>
       </header>
 
       <section class="support" aria-labelledby="support-title">
@@ -138,6 +148,32 @@ const copyAddress = async () => {
   line-height: 1.6;
   font-size: 16px;
   color: #2b3b53;
+}
+
+.social {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 28px;
+}
+
+.x-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  border-radius: 999px;
+  border: 1px solid rgba(9, 24, 46, 0.15);
+  background: #ffffff;
+  color: #1e2d42;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.x-link:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 20px rgba(10, 24, 48, 0.12);
+  border-color: rgba(30, 79, 211, 0.35);
 }
 
 .support {
