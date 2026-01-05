@@ -5,16 +5,34 @@ let copyTimer
 
 const title = `Crypto Fee Calculator \u2014 calculate crypto fees | CryptoFeeCalc`
 const metaDescription =
-  'Calculate real crypto transfer fees. ETH, BTC, TRON, USDT. See how much you receive after fees.'
+  'Calculate real crypto transfer fees with a focused TRON preview. Understand bandwidth costs and net received amounts.'
 
 const leadText =
-  'CryptoFeeCalc is a service for calculating real crypto transfer fees. Find out how much you actually receive after network and exchange fees. Supports ETH, BTC, TRON, USDT, and more networks.'
+  'CryptoFeeCalc is a service for estimating real crypto transfer fees. We are building precise'
+  + ' on-chain calculators that show the net amount after fees. The first release focuses on TRON,'
+  + ' with BTC, ETH, and other networks next.'
 
 useHead({
   title,
   meta: [{ name: 'description', content: metaDescription }],
   htmlAttrs: { lang: 'en' }
 })
+
+const apiBase = useRuntimeConfig().public?.apiBase || ''
+const isApiConfigured = Boolean(apiBase)
+
+const form = reactive({
+  chain: 'tron',
+  asset: 'TRX',
+  amount: '',
+  from: '',
+  to: '',
+  signatureCount: 2
+})
+
+const result = ref(null)
+const errorMessage = ref('')
+const isLoading = ref(false)
 
 const copyAddress = async () => {
   copied.value = false
@@ -44,6 +62,38 @@ const copyAddress = async () => {
     copied.value = false
   }
 }
+
+const estimateFee = async () => {
+  errorMessage.value = ''
+  result.value = null
+
+  if (!isApiConfigured) {
+    errorMessage.value = 'API endpoint is not configured yet. This preview will go live soon.'
+    return
+  }
+
+  isLoading.value = true
+
+  try {
+    const response = await $fetch(`${apiBase}/api/estimate`, {
+      method: 'POST',
+      body: {
+        chain: form.chain,
+        asset: form.asset,
+        amount: form.amount,
+        from: form.from,
+        to: form.to,
+        signatureCount: form.signatureCount
+      }
+    })
+
+    result.value = response
+  } catch (error) {
+    errorMessage.value = 'Unable to calculate the fee right now. Please try again later.'
+  } finally {
+    isLoading.value = false
+  }
+}
 </script>
 
 <template>
@@ -66,6 +116,86 @@ const copyAddress = async () => {
           </a>
         </div>
       </header>
+
+      <section class="estimator" aria-labelledby="estimator-title">
+        <h2 id="estimator-title">Fee estimator preview</h2>
+        <p class="support-text">
+          Try the upcoming calculator experience. This is a test preview and the estimate may be inaccurate.
+        </p>
+
+        <form class="form" @submit.prevent="estimateFee">
+          <div class="field-grid">
+            <label class="field">
+              <span class="field-label">Network</span>
+              <select v-model="form.chain" class="field-input">
+                <option value="tron">TRON</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span class="field-label">Asset</span>
+              <select v-model="form.asset" class="field-input">
+                <option value="TRX">TRX</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span class="field-label">Amount</span>
+              <input v-model.trim="form.amount" class="field-input" required type="number" placeholder="100..." min="0.000000001" />
+            </label>
+
+            <label class="field">
+              <span class="field-label">Signatures</span>
+              <input
+                v-model.number="form.signatureCount"
+                class="field-input"
+                type="number"
+                min="1"
+                step="1"
+              />
+            </label>
+
+            <label class="field field-wide">
+              <span class="field-label">From address</span>
+              <input v-model.trim="form.from" class="field-input" type="text" required  placeholder="T..." />
+            </label>
+
+            <label class="field field-wide">
+              <span class="field-label">To address</span>
+              <input v-model.trim="form.to" class="field-input" type="text" required placeholder="T..." />
+            </label>
+          </div>
+
+          <button class="submit-button" type="submit" :disabled="isLoading">
+            {{ isLoading ? 'Calculating...' : 'Estimate fee' }}
+          </button>
+        </form>
+
+        <p v-if="errorMessage" class="form-status" role="status">
+          {{ errorMessage }}
+        </p>
+
+        <div class="result-card">
+          <p class="result-title">Estimated fee</p>
+          <div v-if="result" class="result-grid">
+            <div>
+              <span class="result-label">Total fee</span>
+              <span class="result-value">{{ result.totalFeeTrx }} TRX</span>
+            </div>
+            <div>
+              <span class="result-label">Bandwidth used</span>
+              <span class="result-value">{{ result.bandwidth?.usedBytes }} bytes</span>
+            </div>
+            <div>
+              <span class="result-label">Burned sun</span>
+              <span class="result-value">{{ result.bandwidth?.burnSun }} sun</span>
+            </div>
+          </div>
+          <p v-else class="result-placeholder">
+            Enter a sample transfer to preview the calculation layout.
+          </p>
+        </div>
+      </section>
 
       <section class="support" aria-labelledby="support-title">
         <h2 id="support-title">Support the project</h2>
@@ -253,6 +383,125 @@ const copyAddress = async () => {
   font-weight: 500;
 }
 
+.estimator {
+  margin-top: 36px;
+  padding-top: 32px;
+  border-top: 1px solid rgba(9, 24, 46, 0.08);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.field-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+}
+
+.field-wide {
+  grid-column: span 2;
+}
+
+.field-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #4b5f7a;
+}
+
+.field-input {
+  border: 1px solid rgba(9, 24, 46, 0.12);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 14px;
+  font-family: 'IBM Plex Sans', sans-serif;
+  background: #ffffff;
+  color: #12233a;
+}
+
+.field-input:focus {
+  outline: 2px solid rgba(30, 79, 211, 0.25);
+  border-color: rgba(30, 79, 211, 0.35);
+}
+
+.submit-button {
+  align-self: center;
+  border: none;
+  border-radius: 999px;
+  padding: 12px 28px;
+  font-weight: 600;
+  background: #0f2f8a;
+  color: #ffffff;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.submit-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 20px rgba(15, 47, 138, 0.2);
+}
+
+.submit-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+  box-shadow: none;
+}
+
+.form-status {
+  margin: 0;
+  color: #7a3d3d;
+}
+
+.result-card {
+  margin-top: 24px;
+  padding: 20px;
+  border-radius: 18px;
+  background: #f5f7ff;
+  border: 1px solid rgba(9, 24, 46, 0.1);
+  text-align: left;
+}
+
+.result-title {
+  margin: 0 0 12px;
+  font-weight: 600;
+  color: #0a1830;
+}
+
+.result-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.result-label {
+  display: block;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #526480;
+}
+
+.result-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: #0a1830;
+}
+
+.result-placeholder {
+  margin: 0;
+  color: #4f5f79;
+}
+
 @media (max-width: 640px) {
   .frame {
     padding: 36px 22px;
@@ -268,6 +517,19 @@ const copyAddress = async () => {
   }
 
   .copy-button {
+    width: 100%;
+    max-width: 240px;
+  }
+
+  .field-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .field-wide {
+    grid-column: span 1;
+  }
+
+  .submit-button {
     width: 100%;
     max-width: 240px;
   }
