@@ -4,6 +4,11 @@ export default defineNuxtConfig({
     appManifest: true
   },
   ssr: false,
+  runtimeConfig: {
+    public: {
+      apiBase: 'https://cryptofeecalc-api.ur5fot.workers.dev'
+    }
+  },
   app: {
     head: {
       charset: 'utf-8',
