@@ -3,7 +3,7 @@ export default defineNuxtConfig({
   experimental: {
     appManifest: true
   },
-  ssr: false,
+  ssr: true,
   runtimeConfig: {
     public: {
       apiBase: 'https://cryptofeecalc-api.ur5fot.workers.dev'
