@@ -6,7 +6,7 @@ export default defineNuxtConfig({
   ssr: true,
   runtimeConfig: {
     public: {
-      apiBase: 'https://api.cryptofeecalc.com/'
+      apiBase: 'https://api.cryptofeecalc.com'
     }
   },
   app: {
