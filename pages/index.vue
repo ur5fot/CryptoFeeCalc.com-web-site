@@ -1,5 +1,6 @@
 <script setup>
 const walletAddress = 'TGrzqMjhZH85X8q3EkUfFdXUB3zSW8oDH7'
+const qrCodeImage = '/qr-code-walet.jpeg'
 const copied = ref(false)
 let copyTimer
 
@@ -198,21 +199,26 @@ const estimateFee = async () => {
       </section>
 
       <section class="support" aria-labelledby="support-title">
-        <h2 id="support-title">Support the project</h2>
-        <p class="support-text">
-          Support helps accelerate development and launch of the calculator.
-        </p>
-        <div class="donation">
-          <span class="label"><strong>USDT (TRC-20)</strong> donation address:</span>
-          <div class="address-row">
-            <code class="address">{{ walletAddress }}</code>
-            <button class="copy-button" type="button" @click="copyAddress">
-              Copy address
-            </button>
+        <div class="support-wrapper">
+          <div class="support-content">
+            <h2 id="support-title">Support the project</h2>
+            <p class="support-text">
+              Support helps accelerate development and launch of the calculator.
+            </p>
+            <div class="donation">
+              <span class="label"><strong>USDT (TRC-20)</strong> donation address:</span>
+              <div class="address-row">
+                <code class="address">{{ walletAddress }}</code>
+                <button class="copy-button" type="button" @click="copyAddress">
+                  Copy address
+                </button>
+              </div>
+              <p v-if="copied" class="copy-status" role="status" aria-live="polite">
+                Address copied to clipboard.
+              </p>
+            </div>
           </div>
-          <p v-if="copied" class="copy-status" role="status" aria-live="polite">
-            Address copied to clipboard.
-          </p>
+          <img :src="qrCodeImage" alt="Donation wallet QR code" class="qr-code" />
         </div>
       </section>
     </div>
@@ -533,5 +539,42 @@ const estimateFee = async () => {
     width: 100%;
     max-width: 240px;
   }
+
+  .support-wrapper {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .qr-code {
+    width: 140px;
+    height: 140px;
+  }
+}
+
+.support-wrapper {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.qr-code {
+  width: 180px;
+  height: 180px;
+  border-radius: 16px;
+  border: 1px solid rgba(9, 24, 46, 0.12);
+  background: #fff;
+  flex-shrink: 0;
+}
+
+.support-content {
+  flex: 1;
+  max-width: 600px;
+  text-align: center;
+}
+
+.support-content h2 {
+  margin-top: 0;
 }
 </style>
