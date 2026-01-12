@@ -22,7 +22,7 @@ useHead({
 const apiBase = useRuntimeConfig().public?.apiBase || ''
 const isApiConfigured = Boolean(apiBase)
 
-// types form data and response
+// Types matching backend API response
 interface FeeForm {
   chain: 'tron'
   asset: 'TRX'
@@ -33,20 +33,23 @@ interface FeeForm {
 }
 
 interface BandwidthInfo {
-  used: number
-  total: number
-  burned: number
+  available: string
+  usedBytes: string
+  priceSunPerByte: string
+  burnSun: string
 }
 
 interface EstimateResponse {
-  success: boolean
-  fee: number
-  feeInTrx: number
-  netAmount: number
-  netAmountInTrx: number
+  chain: 'tron'
+  asset: 'TRX'
+  amount: string
+  amountSun: string
+  from: string
+  to: string
   bandwidth: BandwidthInfo
-  accountCreationFee: number
-  accountCreationFeeInTrx: number
+  createAccountFeeSun: string
+  totalFeeSun: string
+  totalFeeTrx: number
 }
 
 const form = reactive<FeeForm>({
@@ -208,15 +211,15 @@ const estimateFee = async (): Promise<void> => {
           <div v-if="result" class="result-grid">
             <div>
               <span class="result-label">Total fee</span>
-              <span class="result-value">{{ result.feeInTrx }} TRX</span>
+              <span class="result-value">{{ result.totalFeeTrx }} TRX</span>
             </div>
             <div>
               <span class="result-label">Bandwidth used</span>
-              <span class="result-value">{{ result.bandwidth?.used }} bytes</span>
+              <span class="result-value">{{ result.bandwidth?.usedBytes }} bytes</span>
             </div>
             <div>
               <span class="result-label">Burned sun</span>
-              <span class="result-value">{{ result.bandwidth?.burned }} sun</span>
+              <span class="result-value">{{ result.bandwidth?.burnSun }} sun</span>
             </div>
           </div>
           <p v-else class="result-placeholder">
