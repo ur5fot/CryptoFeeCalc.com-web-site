@@ -5,12 +5,15 @@
   "scripts": {
     "dev": "node scripts/generate-robots.js && nuxt dev",
     "build": "node scripts/generate-robots.js && nuxt build",
-    "start": "nuxt preview"
+    "start": "nuxt preview",
+    "type-check": "nuxt typecheck"
   },
   "dependencies": {
     "nuxt": "^3.12.4"
   },
   "devDependencies": {
-    "@types/node": "^25.0.6"
+    "@types/node": "^25.0.6",
+    "typescript": "^5.9.3",
+    "vue-tsc": "^3.2.2"
   }
 }

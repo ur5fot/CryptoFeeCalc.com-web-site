@@ -1,8 +1,8 @@
-<script setup>
+<script setup lang="ts">
 const walletAddress = 'TGrzqMjhZH85X8q3EkUfFdXUB3zSW8oDH7'
 const qrCodeImage = '/qr-code-walet.jpeg'
 const copied = ref(false)
-let copyTimer
+let copyTimer: number | undefined
 
 const title = `Crypto Fee Calculator \u2014 calculate crypto fees | CryptoFeeCalc`
 const metaDescription =
@@ -22,7 +22,37 @@ useHead({
 const apiBase = useRuntimeConfig().public?.apiBase || ''
 const isApiConfigured = Boolean(apiBase)
 
-const form = reactive({
+// Types matching backend API response
+interface FeeForm {
+  chain: 'tron'
+  asset: 'TRX'
+  amount: string
+  from: string
+  to: string
+  signatureCount: number
+}
+
+interface BandwidthInfo {
+  available: string
+  usedBytes: string
+  priceSunPerByte: string
+  burnSun: string
+}
+
+interface EstimateResponse {
+  chain: 'tron'
+  asset: 'TRX'
+  amount: string
+  amountSun: string
+  from: string
+  to: string
+  bandwidth: BandwidthInfo
+  createAccountFeeSun: string
+  totalFeeSun: string
+  totalFeeTrx: number
+}
+
+const form = reactive<FeeForm>({
   chain: 'tron',
   asset: 'TRX',
   amount: '',
@@ -31,11 +61,11 @@ const form = reactive({
   signatureCount: 2
 })
 
-const result = ref(null)
-const errorMessage = ref('')
-const isLoading = ref(false)
+const result = ref<EstimateResponse | null>(null)
+const errorMessage = ref<string>('')
+const isLoading = ref<boolean>(false)
 
-const copyAddress = async () => {
+const copyAddress = async (): Promise<void> => {
   copied.value = false
 
   try {
@@ -64,7 +94,7 @@ const copyAddress = async () => {
   }
 }
 
-const estimateFee = async () => {
+const estimateFee = async (): Promise<void> => {
   errorMessage.value = ''
   result.value = null
 
@@ -76,7 +106,7 @@ const estimateFee = async () => {
   isLoading.value = true
 
   try {
-    const response = await $fetch(`${apiBase}/api/estimate`, {
+    const response = await $fetch<EstimateResponse>(`${apiBase}/api/estimate`, {
       method: 'POST',
       body: {
         chain: form.chain,
