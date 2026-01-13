@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { EstimateRequest, EstimateResponse } from '~/types/api'
+
 const walletAddress = 'TGrzqMjhZH85X8q3EkUfFdXUB3zSW8oDH7'
 const qrCodeImage = '/qr-code-walet.jpeg'
 const copied = ref(false)
@@ -22,37 +24,7 @@ useHead({
 const apiBase = useRuntimeConfig().public?.apiBase || ''
 const isApiConfigured = Boolean(apiBase)
 
-// Types matching backend API response
-interface FeeForm {
-  chain: 'tron'
-  asset: 'TRX'
-  amount: string
-  from: string
-  to: string
-  signatureCount: number
-}
-
-interface BandwidthInfo {
-  available: string
-  usedBytes: string
-  priceSunPerByte: string
-  burnSun: string
-}
-
-interface EstimateResponse {
-  chain: 'tron'
-  asset: 'TRX'
-  amount: string
-  amountSun: string
-  from: string
-  to: string
-  bandwidth: BandwidthInfo
-  createAccountFeeSun: string
-  totalFeeSun: string
-  totalFeeTrx: number
-}
-
-const form = reactive<FeeForm>({
+const form = reactive<EstimateRequest>({
   chain: 'tron',
   asset: 'TRX',
   amount: '',
