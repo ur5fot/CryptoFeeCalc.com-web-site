@@ -30,6 +30,7 @@ NUXT_PUBLIC_API_BASE=http://localhost:8787
 | `NUXT_PUBLIC_API_BASE` | API endpoint URL | `https://api.cryptofeecalc.com` |
 
 For local development, set to `http://localhost:8787` (Wrangler dev server).
+If not set, the default is `https://api.cryptofeecalc.com` (see `nuxt.config.ts`).
 
 ## Scripts
 
@@ -48,6 +49,11 @@ npm run dev
 ```
 
 The app will be available at `http://localhost:3000`.
+
+## Agent Notes
+
+Project-specific agent guidance: `AGENTS.md`.
+Global session summaries: `../AGENTS.md`.
 
 ### Local Development Setup
 
@@ -113,6 +119,13 @@ CryptoFeeCalc.com/
 ## Type Definitions
 
 Types are shared with the API via `types/api.ts` (automatically synced from API on each commit):
+
+The sync runs in the API repo via `scripts/sync-types.sh` (husky pre-commit).
+To sync manually:
+```bash
+cd ../cryptofeecalc-api
+npm run sync-types
+```
 
 ```typescript
 interface EstimateResponse {
